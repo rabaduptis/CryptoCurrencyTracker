@@ -60,8 +60,8 @@ class MainViewModel @Inject constructor(private val mainRepository: MainReposito
             return _getCoinById
         }
     }
-    /*-----------------------*/
 
+    /*-----------------------*/
     private val _getAllTicker = MutableLiveData<Resource<List<Ticker>>>()
     val getAllTicker: LiveData<Resource<List<Ticker>>>
         get() = _getAllTicker
@@ -79,7 +79,6 @@ class MainViewModel @Inject constructor(private val mainRepository: MainReposito
     }
 
     /*-----------------------*/
-
     suspend fun getTickerByCoinId(coinId: String): MutableLiveData<Resource<Ticker>> {
         val _getTickerByCoinId = MutableLiveData<Resource<Ticker>>()
         _getTickerByCoinId.postValue(Resource.loading(null))
@@ -96,7 +95,7 @@ class MainViewModel @Inject constructor(private val mainRepository: MainReposito
 
     init {
         getAllCoin()
-       // getAllTicker()
+         getAllTicker()
         println("hey douglas")
 
     }
