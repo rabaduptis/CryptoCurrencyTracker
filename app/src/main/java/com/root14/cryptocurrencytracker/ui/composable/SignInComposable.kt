@@ -10,12 +10,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -37,10 +39,12 @@ fun SignInComposable() {
     var password = ""
     var confirmPassword = ""
 
-    val outlinedTextFieldColor = TextFieldDefaults.outlinedTextFieldColors(
+    val outlinedTextFieldColor = OutlinedTextFieldDefaults.colors(
         focusedBorderColor = White,
         unfocusedBorderColor = White,
-        textColor = White
+        cursorColor = White,
+        focusedTextColor = White,
+        unfocusedTextColor = White
     )
 
     Surface(color = DarkBlack) {

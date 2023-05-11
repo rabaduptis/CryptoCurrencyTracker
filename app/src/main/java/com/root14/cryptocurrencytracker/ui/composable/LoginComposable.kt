@@ -10,6 +10,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -36,10 +37,13 @@ fun LoginComposable() {
     var email = ""
     var password = ""
 
-    val outlinedTextFieldColor = TextFieldDefaults.outlinedTextFieldColors(
+
+    val outlinedTextFieldColor = OutlinedTextFieldDefaults.colors(
         focusedBorderColor = Color.White,
         unfocusedBorderColor = Color.White,
-        textColor = Color.White
+        cursorColor = Color.White,
+        focusedTextColor = Color.White,
+        unfocusedTextColor = Color.White
     )
 
     Surface(color = DarkBlack) {
