@@ -123,12 +123,13 @@ fun SignInComposable(mainViewModel: MainViewModel = hiltViewModel()) {
                                 }
                             }
                         }
+
                         mainViewModel.getAllCoins.observe(lifecycleOwner) {
-                            println(it)
+                            println("getAllCoins  $it")
                         }
 
                         mainViewModel.getAllTicker.observe(lifecycleOwner) {
-                            println(it)
+                            println("getAllTicker $it")
                         }
                     }
                 }, modifier = Modifier.fillMaxWidth()

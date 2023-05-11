@@ -95,8 +95,6 @@ class MainViewModel @Inject constructor(private val mainRepository: MainReposito
 
     init {
         getAllCoin()
-         getAllTicker()
-        println("hey douglas")
-
+        getAllTicker()
     }
 }
