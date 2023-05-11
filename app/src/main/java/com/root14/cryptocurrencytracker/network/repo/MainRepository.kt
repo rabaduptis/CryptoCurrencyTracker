@@ -6,7 +6,7 @@ import javax.inject.Inject
 class MainRepository @Inject constructor(
     private val apiHelper: ApiHelper
 ) {
-    suspend fun login() = apiHelper.login()
-    suspend fun register() = apiHelper.register()
-    suspend fun loadFeed()= apiHelper.loadFeed()
+    suspend fun listAllCoins() = apiHelper.listAllCoins()
+    suspend fun getCoinById(coinID: String) = apiHelper.getCoinById(coinID)
+    suspend fun getTickerById(coinID: String) = apiHelper.getTickerById(coinID)
 }

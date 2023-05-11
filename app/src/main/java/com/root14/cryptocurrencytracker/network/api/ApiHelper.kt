@@ -1,9 +1,12 @@
 package com.root14.cryptocurrencytracker.network.api
 
+import com.root14.cryptocurrencytracker.network.models.response.CoinById
+import com.root14.cryptocurrencytracker.network.models.response.ListAllCoins
+import com.root14.cryptocurrencytracker.network.models.response.TickerById
 import retrofit2.Response
 
 interface ApiHelper {
-    suspend fun login(): Response<Login>
-    suspend fun register(): Response<Register>
-    suspend fun loadFeed(): Response<Feed>
+    suspend fun listAllCoins(): Response<ListAllCoins>
+    suspend fun getCoinById(coinID: String): Response<CoinById>
+    suspend fun getTickerById(coinID: String): Response<TickerById>
 }

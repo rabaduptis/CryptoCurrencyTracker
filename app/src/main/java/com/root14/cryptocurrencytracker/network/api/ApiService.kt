@@ -1,14 +1,19 @@
 package com.root14.cryptocurrencytracker.network.api
 
+import com.root14.cryptocurrencytracker.network.models.response.CoinById
+import com.root14.cryptocurrencytracker.network.models.response.ListAllCoins
+import com.root14.cryptocurrencytracker.network.models.response.TickerById
 import retrofit2.Response
-import retrofit2.http.POST
+import retrofit2.http.GET
+import retrofit2.http.Path
 
 interface ApiService {
-    @POST("login")
-    suspend fun login(): Response<Login>
+    @GET("coins")
+    suspend fun listAllCoins(): Response<ListAllCoins>
 
-    @POST("register")
-    suspend fun register(): Response<Register>
+    @GET("coins/{coinId}")
+    suspend fun getCoinById(@Path("coinId") coinId: String): Response<CoinById>
 
-    suspend fun loadFeed(): Response<Feed>
+    @GET("tickers/{coinId}")
+    suspend fun getTickerById(@Path("coinId") coinId: String): Response<TickerById>
 }
