@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.root14.cryptocurrencytracker.network.Resource
 import com.root14.cryptocurrencytracker.network.models.response.AllCoins
 import com.root14.cryptocurrencytracker.network.models.response.CoinById
+import com.root14.cryptocurrencytracker.network.models.response.Ticker
 import com.root14.cryptocurrencytracker.network.repo.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -21,20 +22,6 @@ class MainViewModel @Inject constructor(private val mainRepository: MainReposito
     private val loginStatus = MutableLiveData<Boolean>()
     private val signInStatus = MutableLiveData<Boolean>()
 
-    private val _getAllCoins = MutableLiveData<Resource<List<AllCoins>>>()
-    val getAllCoins: LiveData<Resource<List<AllCoins>>>
-        get() = _getAllCoins
-
-
-    private val _getCoinById = MutableLiveData<Resource<CoinById>>()
-
-    val getCoinById: LiveData<Resource<CoinById>>
-        get() = _getCoinById
-
-    init {
-        getAllCoin()
-    }
-
     suspend fun login() {
 
     }
@@ -42,8 +29,13 @@ class MainViewModel @Inject constructor(private val mainRepository: MainReposito
     fun signIn() {
 
     }
+    /*-----------------------*/
 
-    fun getAllCoin() = viewModelScope.launch {
+    private val _getAllCoins = MutableLiveData<Resource<List<AllCoins>>>()
+    val getAllCoins: LiveData<Resource<List<AllCoins>>>
+        get() = _getAllCoins
+
+    private fun getAllCoin() = viewModelScope.launch {
         _getAllCoins.postValue(Resource.loading(null))
 
         mainRepository.listAllCoins().let {
@@ -55,22 +47,57 @@ class MainViewModel @Inject constructor(private val mainRepository: MainReposito
         }
     }
 
-    fun getCoinById(coinId: String) = viewModelScope.launch {
+    /*-----------------------*/
+    suspend fun getCoinById(coinId: String): MutableLiveData<Resource<CoinById>> {
+        val _getCoinById = MutableLiveData<Resource<CoinById>>()
         _getCoinById.postValue(Resource.loading(null))
-
         mainRepository.getCoinById(coinId).let {
             if (it.isSuccessful) {
                 _getCoinById.postValue(Resource.success(it.body()))
             } else {
                 _getCoinById.postValue(Resource.error(it.errorBody().toString(), null))
             }
+            return _getCoinById
+        }
+    }
+    /*-----------------------*/
+
+    private val _getAllTicker = MutableLiveData<Resource<List<Ticker>>>()
+    val getAllTicker: LiveData<Resource<List<Ticker>>>
+        get() = _getAllTicker
+
+    private fun getAllTicker() = viewModelScope.launch {
+        _getAllTicker.postValue(Resource.loading(null))
+
+        mainRepository.getAllTicker().let {
+            if (it.isSuccessful) {
+                _getAllTicker.postValue(Resource.success(it.body()))
+            } else {
+                _getAllTicker.postValue(Resource.error(it.errorBody().toString(), null))
+            }
+        }
+    }
+
+    /*-----------------------*/
+
+    suspend fun getTickerByCoinId(coinId: String): MutableLiveData<Resource<Ticker>> {
+        val _getTickerByCoinId = MutableLiveData<Resource<Ticker>>()
+        _getTickerByCoinId.postValue(Resource.loading(null))
+        mainRepository.getTickerById(coinId).let {
+            if (it.isSuccessful) {
+                _getTickerByCoinId.postValue(Resource.success(it.body()))
+            } else {
+                _getTickerByCoinId.postValue(Resource.error(it.errorBody().toString(), null))
+            }
+            return _getTickerByCoinId
         }
     }
 
 
-    fun tickerByCoin() {
+    init {
+        getAllCoin()
+       // getAllTicker()
+        println("hey douglas")
 
     }
-
-
 }

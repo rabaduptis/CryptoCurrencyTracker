@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 import com.root14.cryptocurrencytracker.network.models.ticker.Quotes
 
 
-data class TickerById(
+data class Ticker(
     @SerializedName("id") var id: String? = null,
     @SerializedName("name") var name: String? = null,
     @SerializedName("symbol") var symbol: String? = null,

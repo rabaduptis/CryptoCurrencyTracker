@@ -8,5 +8,6 @@ class MainRepository @Inject constructor(
 ) {
     suspend fun listAllCoins() = apiHelper.listAllCoins()
     suspend fun getCoinById(coinID: String) = apiHelper.getCoinById(coinID)
+    suspend fun getAllTicker() = apiHelper.getAllTicker()
     suspend fun getTickerById(coinID: String) = apiHelper.getTickerById(coinID)
 }

@@ -115,18 +115,23 @@ fun SignInComposable(mainViewModel: MainViewModel = hiltViewModel()) {
                                 }
 
                                 Status.LOADING -> {
-                                    println("status load ${it.status}")
+                                    "status load ${it.status}"
                                 }
 
                                 Status.ERROR -> {
-                                    println("status error ${it.status}")
+                                    "status error ${it.status}"
                                 }
                             }
                         }
+                        mainViewModel.getAllCoins.observe(lifecycleOwner) {
+                            println(it)
+                        }
 
+                        mainViewModel.getAllTicker.observe(lifecycleOwner) {
+                            println(it)
+                        }
                     }
-                },
-                modifier = Modifier.fillMaxWidth()
+                }, modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Sign In")
             }
