@@ -19,12 +19,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
+import com.root14.cryptocurrencytracker.network.Status
 import com.root14.cryptocurrencytracker.ui.theme.DarkBlack
+import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
+import kotlinx.coroutines.launch
 
 /**
  * Created by ilkay on 11,May, 2023
@@ -33,7 +39,8 @@ import com.root14.cryptocurrencytracker.ui.theme.DarkBlack
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun SignInComposable() {
+fun SignInComposable(mainViewModel: MainViewModel = hiltViewModel()) {
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     var email = ""
     var password = ""
@@ -99,7 +106,27 @@ fun SignInComposable() {
             )
 
             Button(
-                onClick = { /* sign in button */ }, modifier = Modifier.fillMaxWidth()
+                onClick = {
+                    mainViewModel.viewModelScope.launch {
+                        mainViewModel.getAllCoin().observe(lifecycleOwner) {
+                            when (it.status) {
+                                Status.SUCCESS -> {
+                                    println("status sucess ${it.status}")
+                                }
+
+                                Status.LOADING -> {
+                                    "status load ${it.status}"
+                                }
+
+                                Status.ERROR -> {
+                                    "status error ${it.status}"
+                                }
+                            }
+                        }
+
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Sign In")
             }

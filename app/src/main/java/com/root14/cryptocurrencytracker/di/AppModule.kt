@@ -14,6 +14,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
+import com.root14.cryptocurrencytracker.BuildConfig
+
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -24,16 +26,20 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideOkHttpClient(): () -> OkHttpClient = {
+    fun provideOkHttpClient() = if (BuildConfig.DEBUG) {
         val loggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
         OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
             .build()
+    } else {
+        OkHttpClient
+            .Builder()
+            .build()
     }
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient, BASE_URL: String): Retrofit = Retrofit.Builder()
         .addConverterFactory(GsonConverterFactory.create())
         .baseUrl(BASE_URL)
