@@ -108,18 +108,18 @@ fun SignInComposable(mainViewModel: MainViewModel = hiltViewModel()) {
             Button(
                 onClick = {
                     mainViewModel.viewModelScope.launch {
-                        mainViewModel.getAllCoin().observe(lifecycleOwner) {
+                        mainViewModel.getCoinById("btc-bitcoin").observe(lifecycleOwner) {
                             when (it.status) {
                                 Status.SUCCESS -> {
                                     println("status sucess ${it.status}")
                                 }
 
                                 Status.LOADING -> {
-                                    "status load ${it.status}"
+                                    println("status load ${it.status}")
                                 }
 
                                 Status.ERROR -> {
-                                    "status error ${it.status}"
+                                    println("status error ${it.status}")
                                 }
                             }
                         }

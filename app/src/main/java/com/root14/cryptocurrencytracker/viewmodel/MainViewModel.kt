@@ -15,15 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(private val mainRepository: MainRepository) : ViewModel() {
-    //fun sign-in
-    //fun login
-    //fun listAllCoin
-    //fun tickerByCoin-> list coin by id
-
-
     private val loginStatus = MutableLiveData<Boolean>()
     private val signInStatus = MutableLiveData<Boolean>()
-
 
     suspend fun login() {
 
@@ -33,19 +26,32 @@ class MainViewModel @Inject constructor(private val mainRepository: MainReposito
 
     }
 
-    //init de list all yap değişkeni observe et
     suspend fun getAllCoin(): MutableLiveData<Resource<List<AllCoins>>> {
-        val _getAllCoins = MutableLiveData<Resource<List<AllCoins>>>()
-        _getAllCoins.postValue(Resource.loading(null))
+        val getAllCoins = MutableLiveData<Resource<List<AllCoins>>>()
+        getAllCoins.postValue(Resource.loading(null))
 
         mainRepository.listAllCoins().let {
             if (it.isSuccessful) {
-                _getAllCoins.postValue(Resource.success(it.body()))
+                getAllCoins.postValue(Resource.success(it.body()))
             } else {
-                _getAllCoins.postValue(Resource.error(it.errorBody().toString(), null))
+                getAllCoins.postValue(Resource.error(it.errorBody().toString(), null))
             }
         }
-        return _getAllCoins
+        return getAllCoins
+    }
+
+    suspend fun getCoinById(coinId: String): MutableLiveData<Resource<CoinById>> {
+        val getCoinById = MutableLiveData<Resource<CoinById>>()
+        getAllCoin().postValue(Resource.loading(null))
+
+        mainRepository.getCoinById(coinId).let {
+            if (it.isSuccessful) {
+                getCoinById.postValue(Resource.success(it.body()))
+            } else {
+                getCoinById.postValue(Resource.error(it.errorBody().toString(), null))
+            }
+            return getCoinById
+        }
     }
 
     fun tickerByCoin() {
