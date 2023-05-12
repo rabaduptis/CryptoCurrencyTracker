@@ -1,4 +1,4 @@
-package com.root14.cryptocurrencytracker.network.models.response
+package com.root14.cryptocurrencytracker.network.models.response.exchange
 import com.google.gson.annotations.SerializedName
 
 

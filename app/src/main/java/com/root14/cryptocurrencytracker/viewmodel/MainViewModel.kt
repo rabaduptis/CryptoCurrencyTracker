@@ -10,12 +10,9 @@ import com.root14.cryptocurrencytracker.network.Resource
 import com.root14.cryptocurrencytracker.network.Status
 import com.root14.cryptocurrencytracker.network.models.response.AllCoins
 import com.root14.cryptocurrencytracker.network.models.response.CoinById
-import com.root14.cryptocurrencytracker.network.models.response.Ticker
 import com.root14.cryptocurrencytracker.network.repo.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.launch
-import java.util.concurrent.Flow
 import javax.inject.Inject
 
 /**
@@ -67,38 +64,6 @@ class MainViewModel @Inject constructor(
             return _getCoinById
         }
     }
-
-    /*-----------------------*/
-    private val _getAllTicker = MutableLiveData<Resource<List<Ticker>>>()
-    val getAllTicker: LiveData<Resource<List<Ticker>>>
-        get() = _getAllTicker
-
-    private fun getAllTicker() = viewModelScope.launch {
-        _getAllTicker.postValue(Resource.loading(null))
-
-        mainRepository.getAllTicker().let {
-            if (it.isSuccessful) {
-                _getAllTicker.postValue(Resource.success(it.body()))
-            } else {
-                _getAllTicker.postValue(Resource.error(it.errorBody().toString(), null))
-            }
-        }
-    }
-
-    /*-----------------------*/
-    suspend fun getTickerByCoinId(coinId: String): MutableLiveData<Resource<Ticker>> {
-        val _getTickerByCoinId = MutableLiveData<Resource<Ticker>>()
-        _getTickerByCoinId.postValue(Resource.loading(null))
-        mainRepository.getTickerById(coinId).let {
-            if (it.isSuccessful) {
-                _getTickerByCoinId.postValue(Resource.success(it.body()))
-            } else {
-                _getTickerByCoinId.postValue(Resource.error(it.errorBody().toString(), null))
-            }
-            return _getTickerByCoinId
-        }
-    }
-    
     init {
         getAllCoin()
         //getAllTicker()
