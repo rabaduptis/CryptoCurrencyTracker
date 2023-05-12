@@ -75,6 +75,7 @@ class MainViewModel @Inject constructor(
     /*-----------------------*/
 
     init {
+        //eğer dbde değer yoksa getAllCoin yap bitene kadar ekranda loading göster
         getAllCoin()
         //getAllTicker()
         getAllCoins.observeForever {
