@@ -10,4 +10,7 @@ import javax.inject.Inject
 class DbRepo @Inject constructor(private val coinDao: CoinDao) {
     suspend fun getCoins() = coinDao.getCoin()
     suspend fun insertCoin(coin: Coin) = coinDao.insertCoin(coin)
+
+    suspend fun toggleCoinFavorite(coinId: String) = coinDao.toggleCoinFavorite(coinId)
+    suspend fun getFavorite(coinId: String): Boolean? = coinDao.getFavorite(coinId)
 }

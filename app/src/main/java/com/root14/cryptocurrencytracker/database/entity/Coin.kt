@@ -19,5 +19,6 @@ data class Coin(
     @ColumnInfo(name = "hashAlgorithm") var hashAlgorithm: String? = null,
     @ColumnInfo(name = "logoURL") var logoURL: String? = null,
     @ColumnInfo(name = "price") var price: String? = null,
-    @ColumnInfo(name = "percentChange24h") var percentChange24h: String? = null
+    @ColumnInfo(name = "percentChange24h") var percentChange24h: String? = null,
+    @ColumnInfo(name = "favorite") var favorite: Boolean = false
 )

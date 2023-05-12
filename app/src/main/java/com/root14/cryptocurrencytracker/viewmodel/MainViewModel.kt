@@ -64,6 +64,16 @@ class MainViewModel @Inject constructor(
             return _getCoinById
         }
     }
+
+    suspend fun toggleCoinFavorite(coinId: String) {
+        dbRepo.toggleCoinFavorite(coinId)
+    }
+
+    /*-----------------------*/
+    suspend fun getFavorite(coinId: String) = dbRepo.getFavorite(coinId)
+
+    /*-----------------------*/
+
     init {
         getAllCoin()
         //getAllTicker()

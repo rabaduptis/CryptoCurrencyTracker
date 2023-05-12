@@ -62,7 +62,8 @@ object AppModule {
     @Singleton
     @Provides
     fun provideDb(@ApplicationContext app: Context) =
-        Room.databaseBuilder(app, AppDatabase::class.java, "cryptocurrency-db").build()
+        Room.databaseBuilder(app, AppDatabase::class.java, "cryptocurrency-db")
+            .fallbackToDestructiveMigration().build()
 
     @Singleton
     @Provides
