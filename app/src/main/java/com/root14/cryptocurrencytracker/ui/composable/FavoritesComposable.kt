@@ -50,14 +50,11 @@ fun FavoritesComposable(mainViewModel: MainViewModel = hiltViewModel()) {
     LaunchedEffect(Unit) {
         coinList = mainViewModel.getFavoriteCoins()
         isLoading = false
-
-        if (coinList.isNullOrEmpty()) {
-
-        }
     }
 
 
     Surface(color = Color.Black) {
+        //loading screen
         if (isLoading) {
             Column(
                 verticalArrangement = Arrangement.Center,
@@ -72,6 +69,7 @@ fun FavoritesComposable(mainViewModel: MainViewModel = hiltViewModel()) {
                 )
             }
         } else {
+            //if there is no fav coin
             if (coinList.isEmpty()) {
                 Box(
                     contentAlignment = Alignment.Center,

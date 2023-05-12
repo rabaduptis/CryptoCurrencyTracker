@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.root14.cryptocurrencytracker.database.entity.Coin
 import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
 
@@ -40,7 +42,9 @@ import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun ListAllCoinComposable(mainViewModel: MainViewModel = hiltViewModel()) {
+fun ListAllCoinComposable(
+    mainViewModel: MainViewModel = hiltViewModel(),
+) {
     var isLoading by remember { mutableStateOf(true) }
     var coinList by remember {
         mutableStateOf(emptyList<Coin>())
@@ -55,7 +59,8 @@ fun ListAllCoinComposable(mainViewModel: MainViewModel = hiltViewModel()) {
         if (isLoading) {
             Column(
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxSize()
             ) {
                 CircularProgressIndicator()
                 Spacer(modifier = Modifier.padding(top = 24.dp, bottom = 24.dp))

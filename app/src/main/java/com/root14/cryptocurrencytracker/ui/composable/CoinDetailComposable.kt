@@ -130,6 +130,7 @@ fun CoinDetailComposable(
     }
 
     Surface(color = DarkBlack) {}
+    //loading screen
     if (isLoading0 or isLoading1) {
         Column(
             verticalArrangement = Arrangement.Center,
