@@ -15,7 +15,6 @@ interface CoinDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCoin(coin: Coin)
-
     @Query("SELECT * FROM coins")
     suspend fun getCoin(): List<Coin>
 

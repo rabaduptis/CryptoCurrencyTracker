@@ -7,7 +7,7 @@ import javax.inject.Inject
 /**
  * Created by ilkay on 12,May, 2023
  */
-class dbRepo @Inject constructor(private val coinDao: CoinDao) {
+class DbRepo @Inject constructor(private val coinDao: CoinDao) {
     suspend fun getCoins() = coinDao.getCoin()
     suspend fun insertCoin(coin: Coin) = coinDao.insertCoin(coin)
 }

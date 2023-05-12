@@ -13,11 +13,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * Created by ilkay on 11,May, 2023
@@ -26,9 +33,15 @@ import androidx.compose.ui.unit.dp
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun ListAllCoinComposable() {
+fun ListAllCoinComposable(mainViewModel: MainViewModel = hiltViewModel()) {
 
-    val dummyCoinList = listOf<String>("btc", "eth", "otherCoin")
+    val dummyCoinList = mutableListOf<String>("btc", "eth", "otherCoin")
+
+
+    LaunchedEffect(Unit) {
+        val dbcoins = mainViewModel.dbRepo.getCoins()
+        
+    }
 
     Surface(color = Color.Black) {
         LazyColumn() {

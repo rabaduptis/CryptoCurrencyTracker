@@ -5,8 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.root14.cryptocurrencytracker.database.entity.Coin
-import com.root14.cryptocurrencytracker.database.repo.dbRepo
+import com.root14.cryptocurrencytracker.database.repo.DbRepo
 import com.root14.cryptocurrencytracker.network.Resource
+import com.root14.cryptocurrencytracker.network.Status
 import com.root14.cryptocurrencytracker.network.models.response.AllCoins
 import com.root14.cryptocurrencytracker.network.models.response.CoinById
 import com.root14.cryptocurrencytracker.network.models.response.Ticker
@@ -22,7 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val mainRepository: MainRepository,
-    private val dbRepo: dbRepo
+    val dbRepo: DbRepo
 ) : ViewModel() {
     private val loginStatus = MutableLiveData<Boolean>()
     private val signInStatus = MutableLiveData<Boolean>()
@@ -98,26 +99,38 @@ class MainViewModel @Inject constructor(
 
 
     init {
-        /*getAllCoin()
-         getAllTicker()*/
+        getAllCoin()
+        //getAllTicker()
 
-        viewModelScope.launch {
-            val coin = Coin(
-                id = "btc",
-                name = "bitcoin",
-                symbol = "bt-c",
-                description = "this bitcoin description",
-                hashAlgorithm = "btcAlgorithm",
-                logoURL = "google.com",
-                price = "12",
-                percentChange24h = "1"
-            )
+        getAllCoins.observeForever {
+            it.data?.forEachIndexed { index, allCoins ->
 
-            dbRepo.insertCoin(coin)
+                when (it.status) {
+                    Status.SUCCESS -> {
+                        println("status sucess ${it.status}")
 
-            val coins = dbRepo.getCoins()
-            println("db gelen ${coins.get(0).name}")
+                        viewModelScope.launch {
+                            dbRepo.insertCoin(
+                                Coin(
+                                    id = allCoins.id,
+                                    name = allCoins.name,
+                                    symbol = allCoins.symbol
+                                )
+                            )
+                            val coins = dbRepo.getCoins()
+                            println("hey douglas! $coins")
+                        }
+                    }
+
+                    Status.LOADING -> {
+                        "status load ${it.status}"
+                    }
+
+                    Status.ERROR -> {
+                        "status error ${it.status}"
+                    }
+                }
+            }
         }
-
     }
 }
