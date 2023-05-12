@@ -15,6 +15,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,11 +27,14 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.root14.cryptocurrencytracker.database.repo.DbRepo
 import com.root14.cryptocurrencytracker.network.Status
 import com.root14.cryptocurrencytracker.ui.theme.DarkBlack
 import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * Created by ilkay on 11,May, 2023
@@ -39,7 +43,9 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun SignInComposable(mainViewModel: MainViewModel = hiltViewModel()) {
+fun SignInComposable(
+    mainViewModel: MainViewModel = hiltViewModel()
+) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
     var email = ""
@@ -107,31 +113,8 @@ fun SignInComposable(mainViewModel: MainViewModel = hiltViewModel()) {
 
             Button(
                 onClick = {
-                    mainViewModel.viewModelScope.launch {
-                        mainViewModel.getCoinById("btc-bitcoin").observe(lifecycleOwner) {
-                            when (it.status) {
-                                Status.SUCCESS -> {
-                                    println("status sucess ${it.status}")
-                                }
 
-                                Status.LOADING -> {
-                                    "status load ${it.status}"
-                                }
 
-                                Status.ERROR -> {
-                                    "status error ${it.status}"
-                                }
-                            }
-                        }
-
-                        mainViewModel.getAllCoins.observe(lifecycleOwner) {
-                            println("getAllCoins  $it")
-                        }
-
-                        mainViewModel.getAllTicker.observe(lifecycleOwner) {
-                            println("getAllTicker $it")
-                        }
-                    }
                 }, modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Sign In")

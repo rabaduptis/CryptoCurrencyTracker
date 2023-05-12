@@ -4,10 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.root14.cryptocurrencytracker.database.entity.Coin
+import com.root14.cryptocurrencytracker.database.repo.DbRepo
 import com.root14.cryptocurrencytracker.network.Resource
+import com.root14.cryptocurrencytracker.network.Status
 import com.root14.cryptocurrencytracker.network.models.response.AllCoins
 import com.root14.cryptocurrencytracker.network.models.response.CoinById
-import com.root14.cryptocurrencytracker.network.models.response.Ticker
 import com.root14.cryptocurrencytracker.network.repo.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -18,12 +20,14 @@ import javax.inject.Inject
  */
 
 @HiltViewModel
-class MainViewModel @Inject constructor(private val mainRepository: MainRepository) : ViewModel() {
+class MainViewModel @Inject constructor(
+    private val mainRepository: MainRepository,
+    val dbRepo: DbRepo
+) : ViewModel() {
     private val loginStatus = MutableLiveData<Boolean>()
     private val signInStatus = MutableLiveData<Boolean>()
 
     suspend fun login() {
-
     }
 
     fun signIn() {
@@ -60,41 +64,36 @@ class MainViewModel @Inject constructor(private val mainRepository: MainReposito
             return _getCoinById
         }
     }
-
-    /*-----------------------*/
-    private val _getAllTicker = MutableLiveData<Resource<List<Ticker>>>()
-    val getAllTicker: LiveData<Resource<List<Ticker>>>
-        get() = _getAllTicker
-
-    private fun getAllTicker() = viewModelScope.launch {
-        _getAllTicker.postValue(Resource.loading(null))
-
-        mainRepository.getAllTicker().let {
-            if (it.isSuccessful) {
-                _getAllTicker.postValue(Resource.success(it.body()))
-            } else {
-                _getAllTicker.postValue(Resource.error(it.errorBody().toString(), null))
-            }
-        }
-    }
-
-    /*-----------------------*/
-    suspend fun getTickerByCoinId(coinId: String): MutableLiveData<Resource<Ticker>> {
-        val _getTickerByCoinId = MutableLiveData<Resource<Ticker>>()
-        _getTickerByCoinId.postValue(Resource.loading(null))
-        mainRepository.getTickerById(coinId).let {
-            if (it.isSuccessful) {
-                _getTickerByCoinId.postValue(Resource.success(it.body()))
-            } else {
-                _getTickerByCoinId.postValue(Resource.error(it.errorBody().toString(), null))
-            }
-            return _getTickerByCoinId
-        }
-    }
-
-
     init {
         getAllCoin()
-        getAllTicker()
+        //getAllTicker()
+        getAllCoins.observeForever {
+            it.data?.forEachIndexed { index, allCoins ->
+
+                when (it.status) {
+                    Status.SUCCESS -> {
+                        println("status sucess ${it.status}")
+
+                        viewModelScope.launch {
+                            dbRepo.insertCoin(
+                                Coin(
+                                    id = allCoins.id,
+                                    name = allCoins.name,
+                                    symbol = allCoins.symbol
+                                )
+                            )
+                        }
+                    }
+
+                    Status.LOADING -> {
+                        "status load ${it.status}"
+                    }
+
+                    Status.ERROR -> {
+                        "status error ${it.status}"
+                    }
+                }
+            }
+        }
     }
 }
