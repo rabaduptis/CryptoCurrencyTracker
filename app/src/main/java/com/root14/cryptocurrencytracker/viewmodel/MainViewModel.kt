@@ -10,6 +10,7 @@ import com.root14.cryptocurrencytracker.network.Resource
 import com.root14.cryptocurrencytracker.network.Status
 import com.root14.cryptocurrencytracker.network.models.response.AllCoins
 import com.root14.cryptocurrencytracker.network.models.response.CoinById
+import com.root14.cryptocurrencytracker.network.models.response.TickerById
 import com.root14.cryptocurrencytracker.network.repo.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -52,7 +53,7 @@ class MainViewModel @Inject constructor(
     }
 
     /*-----------------------*/
-    suspend fun getCoinById(coinId: String): MutableLiveData<Resource<CoinById>> {
+    suspend fun getCoinById(coinId: String): LiveData<Resource<CoinById>> {
         val _getCoinById = MutableLiveData<Resource<CoinById>>()
         _getCoinById.postValue(Resource.loading(null))
         mainRepository.getCoinById(coinId).let {
@@ -65,6 +66,21 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    /*-----------------------*/
+    suspend fun getTickerById(coinId: String): LiveData<Resource<TickerById>> {
+        val _getExchangeRate = MutableLiveData<Resource<TickerById>>()
+        _getExchangeRate.postValue(Resource.loading(null))
+        mainRepository.getTickerById(coinId).let {
+            if (it.isSuccessful) {
+                _getExchangeRate.postValue(Resource.success(it.body()))
+            } else {
+                _getExchangeRate.postValue(Resource.error(it.errorBody().toString(), null))
+            }
+            return _getExchangeRate
+        }
+    }
+
+    /*-----------------------*/
     suspend fun toggleCoinFavorite(coinId: String) {
         dbRepo.toggleCoinFavorite(coinId)
     }
