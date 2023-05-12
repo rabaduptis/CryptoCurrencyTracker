@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.root14.cryptocurrencytracker.ui.composable.CoinDetailComposable
+import com.root14.cryptocurrencytracker.ui.composable.FavoritesComposable
 import com.root14.cryptocurrencytracker.ui.composable.ListAllCoinComposable
 import com.root14.cryptocurrencytracker.ui.composable.SignInComposable
 import com.root14.cryptocurrencytracker.ui.theme.CryptoCurrencyTrackerTheme
@@ -26,7 +27,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    CoinDetailComposable()
+                    FavoritesComposable()
                 }
             }
         }

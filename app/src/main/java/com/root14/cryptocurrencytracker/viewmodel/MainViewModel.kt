@@ -18,7 +18,9 @@ import com.root14.cryptocurrencytracker.network.models.response.CoinById
 import com.root14.cryptocurrencytracker.network.models.response.TickerById
 import com.root14.cryptocurrencytracker.network.repo.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -93,6 +95,11 @@ class MainViewModel @Inject constructor(
 
     /*-----------------------*/
     suspend fun getFavorite(coinId: String) = dbRepo.getFavorite(coinId)
+
+    /*-----------------------*/
+    suspend fun getFavoriteCoins(): List<Coin> = withContext(Dispatchers.IO) {
+        dbRepo.getFavoriteCoins()
+    }
 
     /*-----------------------*/
     fun loadImage(imageUrl: String, imageState: MutableState<Drawable?>) {

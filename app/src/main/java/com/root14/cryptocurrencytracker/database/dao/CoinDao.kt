@@ -27,4 +27,8 @@ interface CoinDao {
     @Query("SELECT favorite FROM coins WHERE id = :coinId")
     suspend fun getFavorite(coinId: String): Boolean?
 
+
+    @Query("SELECT * FROM coins WHERE favorite = 1")
+    fun getFavoriteCoins(): List<Coin>
+
 }
