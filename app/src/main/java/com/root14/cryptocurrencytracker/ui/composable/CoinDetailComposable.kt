@@ -1,9 +1,14 @@
 package com.root14.cryptocurrencytracker.ui.composable
 
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
@@ -16,25 +21,23 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
 import com.root14.cryptocurrencytracker.database.entity.Coin
 import com.root14.cryptocurrencytracker.network.Status
 import com.root14.cryptocurrencytracker.ui.theme.DarkBlack
 import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /**
  * Created by ilkay on 12,May, 2023
@@ -52,6 +55,7 @@ fun CoinDetailComposable(
     }
     var isLoading0 by remember { mutableStateOf(true) }
     var isLoading1 by remember { mutableStateOf(true) }
+    val imageState = remember { mutableStateOf<Drawable?>(null) }
 
     LaunchedEffect(Unit) {
         mainViewModel.getCoinById(coinId).observe(lifecycleOwner) {
@@ -64,6 +68,8 @@ fun CoinDetailComposable(
                     coin.hashAlgorithm = it.data?.hashAlgorithm
                     coin.logoURL = it.data?.logoURL
                     isLoading0 = false
+
+                    coin.logoURL?.let { it1 -> mainViewModel.loadImage(it1, imageState) }
                 }
 
                 Status.LOADING -> {/*loading yap*/
@@ -122,6 +128,7 @@ fun CoinDetailComposable(
             }
         }
     }
+
     Surface(color = DarkBlack) {}
     if (isLoading0 or isLoading1) {
         Column(
@@ -149,23 +156,31 @@ fun CoinDetailComposable(
                 modifier = Modifier.padding(top = 8.dp),
                 color = Color.White
             )
+            //image
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(36.dp)
+            ) {
+                if (imageState.value != null) {
+                    Image(
+                        bitmap = (imageState.value as BitmapDrawable).bitmap.asImageBitmap(),
+                        contentDescription = "Image"
+                    )
+                } else {
+                    CircularProgressIndicator()
+                }
 
-            // Coin image
-            /* Image(
-                 painter = painterResource(id = coin.logoURL),
-                 contentDescription = "Coin image",
-                 modifier = Modifier
-                     .size(128.dp)
-                     .padding(top = 16.dp)
-             )*/
+            }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
             ) {
                 Text(
                     text = "Price: ${coin.price}",
                     style = MaterialTheme.typography.h6,
-                    color = Color.White
+                    color = Color.White, maxLines = 1
                 )
                 Text(
                     text = " (${coin.percentChange24h}%)",
@@ -173,7 +188,7 @@ fun CoinDetailComposable(
                     color = if ((coin.percentChange24h?.toIntOrNull()
                             ?: 0) >= 0
                     ) Color.Green else Color.Red,
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp), maxLines = 1
                 )
             }
 

@@ -2,6 +2,8 @@ package com.root14.cryptocurrencytracker.di
 
 import android.content.Context
 import androidx.room.Room
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.root14.cryptocurrencytracker.network.Utility
 import com.root14.cryptocurrencytracker.network.api.ApiHelper
 import com.root14.cryptocurrencytracker.network.api.ApiHelperImpl
@@ -69,4 +71,9 @@ object AppModule {
     @Provides
     fun provideCoinDao(db: AppDatabase) = db.coinDao()
 
+    @Provides
+    @Singleton
+    fun provideGlideInstance(@ApplicationContext context: Context): RequestManager =
+        Glide.with(context)
 }
+

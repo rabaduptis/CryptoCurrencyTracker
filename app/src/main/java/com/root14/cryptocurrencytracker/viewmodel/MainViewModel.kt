@@ -1,9 +1,14 @@
 package com.root14.cryptocurrencytracker.viewmodel
 
+import android.graphics.drawable.Drawable
+import androidx.compose.runtime.MutableState
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bumptech.glide.RequestManager
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.root14.cryptocurrencytracker.database.entity.Coin
 import com.root14.cryptocurrencytracker.database.repo.DbRepo
 import com.root14.cryptocurrencytracker.network.Resource
@@ -23,7 +28,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val mainRepository: MainRepository,
-    val dbRepo: DbRepo
+    val dbRepo: DbRepo,
+    private val glide: RequestManager
 ) : ViewModel() {
     private val loginStatus = MutableLiveData<Boolean>()
     private val signInStatus = MutableLiveData<Boolean>()
@@ -87,6 +93,20 @@ class MainViewModel @Inject constructor(
 
     /*-----------------------*/
     suspend fun getFavorite(coinId: String) = dbRepo.getFavorite(coinId)
+
+    /*-----------------------*/
+    fun loadImage(imageUrl: String, imageState: MutableState<Drawable?>) {
+        glide.load(imageUrl).into(object : CustomTarget<Drawable?>() {
+            override fun onResourceReady(
+                resource: Drawable,
+                transition: Transition<in Drawable?>?
+            ) {
+                imageState.value = resource
+            }
+
+            override fun onLoadCleared(placeholder: Drawable?) {}
+        })
+    }
 
     /*-----------------------*/
 
