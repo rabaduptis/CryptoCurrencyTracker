@@ -96,16 +96,30 @@ fun CoinDetailComposable(
             }
         }
     }
-
-
-    // State to hold the update interval value
     var updateIntervalSeconds by remember { mutableStateOf(60) }
 
     // This will automatically trigger a recomposition every `updateIntervalSeconds`
     LaunchedEffect(updateIntervalSeconds) {
         while (true) {
             delay(updateIntervalSeconds * 1000L)
-            // TODO: Fetch updated coin data and update `coin` variable
+            mainViewModel.getTickerById(coinId).observe(lifecycleOwner) {
+                when (it.status) {
+                    Status.SUCCESS -> {
+                        coin.price = it.data?.quotes?.USD?.price.toString()
+                        coin.percentChange24h = it.data?.quotes?.USD?.change24H.toString()
+                        isLoading1 = false
+                    }
+
+                    Status.LOADING -> {
+                        isLoading1 = true
+                    }
+
+                    Status.ERROR -> {
+                        "cannot load detail ${it.message}"
+                        isLoading1 = false
+                    }
+                }
+            }
         }
     }
     Surface(color = DarkBlack) {}
@@ -124,16 +138,13 @@ fun CoinDetailComposable(
         }
     } else {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Coin name and algorithm
             Text(
                 text = "${coin.name} (${coin.hashAlgorithm})",
                 style = MaterialTheme.typography.h4,
                 color = Color.White
             )
-
-            // Description
             Text(
-                text = "coin.description!!",
+                text = coin.description!!,
                 style = MaterialTheme.typography.body1,
                 modifier = Modifier.padding(top = 8.dp),
                 color = Color.White
@@ -147,8 +158,6 @@ fun CoinDetailComposable(
                      .size(128.dp)
                      .padding(top = 16.dp)
              )*/
-
-            // Current price and percentage change in last 24 hours
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(top = 16.dp)
@@ -161,7 +170,9 @@ fun CoinDetailComposable(
                 Text(
                     text = " (${coin.percentChange24h}%)",
                     style = MaterialTheme.typography.body1,
-                    color = if ((coin.percentChange24h?.toIntOrNull() ?: 0) >= 0) Color.Green else Color.Red,
+                    color = if ((coin.percentChange24h?.toIntOrNull()
+                            ?: 0) >= 0
+                    ) Color.Green else Color.Red,
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }
@@ -195,7 +206,7 @@ fun CoinDetailComposable(
             }
 
             // Add to favorites button
-            Button(onClick = {}/*onAddToFavorites*/, modifier = Modifier.padding(top = 16.dp)) {
+            Button(onClick = { /*onAddToFavorites*/ }, modifier = Modifier.padding(top = 16.dp)) {
                 Text(text = "Add to favorites")
             }
         }
