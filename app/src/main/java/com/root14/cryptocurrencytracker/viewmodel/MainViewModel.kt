@@ -13,7 +13,9 @@ import com.root14.cryptocurrencytracker.network.models.response.CoinById
 import com.root14.cryptocurrencytracker.network.models.response.Ticker
 import com.root14.cryptocurrencytracker.network.repo.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.launch
+import java.util.concurrent.Flow
 import javax.inject.Inject
 
 /**
@@ -96,12 +98,10 @@ class MainViewModel @Inject constructor(
             return _getTickerByCoinId
         }
     }
-
-
+    
     init {
         getAllCoin()
         //getAllTicker()
-
         getAllCoins.observeForever {
             it.data?.forEachIndexed { index, allCoins ->
 
@@ -117,8 +117,6 @@ class MainViewModel @Inject constructor(
                                     symbol = allCoins.symbol
                                 )
                             )
-                            val coins = dbRepo.getCoins()
-                            println("hey douglas! $coins")
                         }
                     }
 
