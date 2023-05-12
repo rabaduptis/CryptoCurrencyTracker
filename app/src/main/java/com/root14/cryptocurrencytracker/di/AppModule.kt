@@ -1,5 +1,7 @@
 package com.root14.cryptocurrencytracker.di
 
+import android.content.Context
+import androidx.room.Room
 import com.root14.cryptocurrencytracker.network.Utility
 import com.root14.cryptocurrencytracker.network.api.ApiHelper
 import com.root14.cryptocurrencytracker.network.api.ApiHelperImpl
@@ -15,6 +17,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 import com.root14.cryptocurrencytracker.BuildConfig
+import com.root14.cryptocurrencytracker.database.AppDatabase
+import dagger.hilt.android.qualifiers.ApplicationContext
 
 
 @Module
@@ -53,5 +57,15 @@ object AppModule {
     @Provides
     @Singleton
     fun provideApiHelper(apiHelper: ApiHelperImpl): ApiHelper = apiHelper
+
+
+    @Singleton
+    @Provides
+    fun provideDb(@ApplicationContext app: Context) =
+        Room.databaseBuilder(app, AppDatabase::class.java, "cryptocurrency-db").build()
+
+    @Singleton
+    @Provides
+    fun provideCoinDao(db: AppDatabase) = db.coinDao()
 
 }
