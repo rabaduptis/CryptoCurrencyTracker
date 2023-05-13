@@ -1,11 +1,21 @@
 package com.root14.cryptocurrencytracker.viewmodel
 
+import android.content.SharedPreferences
 import android.graphics.drawable.Drawable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -31,10 +41,13 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val mainRepository: MainRepository,
     val dbRepo: DbRepo,
-    private val glide: RequestManager
+    private val glide: RequestManager,
+    private val sharedPreferences: SharedPreferences
 ) : ViewModel() {
     private val loginStatus = MutableLiveData<Boolean>()
     private val signInStatus = MutableLiveData<Boolean>()
+
+    var isLoadingFav by mutableStateOf(true)
 
     suspend fun login() {
     }
@@ -42,20 +55,40 @@ class MainViewModel @Inject constructor(
     fun signIn() {
 
     }
+
+    /*-----------------------*/
+
+    fun setInitialized(key: String = "init", value: Boolean = true) {
+        val editor = sharedPreferences.edit()
+        editor.putBoolean(key, value)
+        editor.apply()
+    }
+
+    /**
+     * @return true if first init
+     */
+    fun checkFirstInit(key: String = "init") = sharedPreferences.getBoolean(key, true)
+
     /*-----------------------*/
 
     private val _getAllCoins = MutableLiveData<Resource<List<AllCoins>>>()
     val getAllCoins: LiveData<Resource<List<AllCoins>>>
         get() = _getAllCoins
 
+    /**
+     * coinf from API
+     */
     private fun getAllCoin() = viewModelScope.launch {
         _getAllCoins.postValue(Resource.loading(null))
+        isLoading = true
 
         mainRepository.listAllCoins().let {
             if (it.isSuccessful) {
                 _getAllCoins.postValue(Resource.success(it.body()))
+                isLoading = false
             } else {
                 _getAllCoins.postValue(Resource.error(it.errorBody().toString(), null))
+                isLoading = false
             }
         }
     }
@@ -98,7 +131,20 @@ class MainViewModel @Inject constructor(
 
     /*-----------------------*/
     suspend fun getFavoriteCoins(): List<Coin> = withContext(Dispatchers.IO) {
+        isLoadingFav = false
         dbRepo.getFavoriteCoins()
+    }
+
+    /**
+     * @return coin list from db
+     */
+    var getCoins = MutableLiveData<List<Coin>>()
+
+    suspend fun getCoins() {
+        withContext(Dispatchers.IO) {
+            getCoins.postValue(dbRepo.getCoins())
+            isLoading = false
+        }
     }
 
     /*-----------------------*/
@@ -114,40 +160,61 @@ class MainViewModel @Inject constructor(
             override fun onLoadCleared(placeholder: Drawable?) {}
         })
     }
-
     /*-----------------------*/
 
-    init {
-        //eğer dbde değer yoksa getAllCoin yap bitene kadar ekranda loading göster
-        getAllCoin()
-        //getAllTicker()
-        getAllCoins.observeForever {
-            it.data?.forEachIndexed { index, allCoins ->
 
+    //Temiz
+    var isLoading by mutableStateOf(true)
+    var loadingProgress by mutableStateOf(0f)
+    var result = MutableLiveData<List<Coin>>()
+
+    suspend fun getAllCoins() {
+
+        val coinsFromDb = dbRepo.getCoins()
+        if (coinsFromDb.isEmpty()) {
+            //get from api
+            getAllCoin()
+            val coinsFromApi = getAllCoins
+            coinsFromApi.observeForever {
                 when (it.status) {
                     Status.SUCCESS -> {
-                        println("status sucess ${it.status}")
-
                         viewModelScope.launch {
-                            dbRepo.insertCoin(
-                                Coin(
-                                    id = allCoins.id,
-                                    name = allCoins.name,
-                                    symbol = allCoins.symbol
-                                )
-                            )
+                            withContext(Dispatchers.IO) {
+                                var _result = mutableListOf<Coin>()
+                                it.data?.forEachIndexed { index, allCoins ->
+                                    //save to db
+                                    dbRepo.insertCoin(Coin(id = allCoins.id, name = allCoins.name))
+                                    //for list
+                                    _result.add(
+                                        index = index,
+                                        element = Coin(id = allCoins.id, name = allCoins.name)
+                                    )
+                                    loadingProgress = (((index + 1) * 100) / it.data.size).toFloat()
+                                }
+                                result.postValue(_result)
+                                isLoading = false
+                            }
                         }
                     }
 
                     Status.LOADING -> {
-                        "status load ${it.status}"
+                        isLoading = true
                     }
 
                     Status.ERROR -> {
-                        "status error ${it.status}"
+                        isLoading = false
                     }
                 }
             }
+        } else {
+            result.postValue(coinsFromDb)
+            isLoading = false
+        }
+    }
+
+    init {
+        viewModelScope.launch {
+            getAllCoins()
         }
     }
 }

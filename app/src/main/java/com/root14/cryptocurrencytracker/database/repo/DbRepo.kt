@@ -14,4 +14,5 @@ class DbRepo @Inject constructor(private val coinDao: CoinDao) {
     suspend fun toggleCoinFavorite(coinId: String) = coinDao.toggleCoinFavorite(coinId)
     suspend fun getFavorite(coinId: String) = coinDao.getFavorite(coinId)
     suspend fun getFavoriteCoins() = coinDao.getFavoriteCoins()
+    suspend fun hasAnyCoin() = coinDao.hasAnyCoin()
 }
