@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.root14.cryptocurrencytracker.database.entity.Coin
 import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
@@ -48,38 +49,19 @@ import kotlinx.coroutines.withContext
 fun ListAllCoinComposable(
     mainViewModel: MainViewModel = hiltViewModel(),
 ) {
-
-    var isLoadingFromDb by remember {
-        mutableStateOf(true)
-    }
-    var isLoadingFromAPI by remember {
-        mutableStateOf(true)
-    }
-
     var isLoading by remember {
         mutableStateOf(true)
     }
-
     var coinList by remember {
         mutableStateOf(emptyList<Coin>())
     }
-    LaunchedEffect(Unit) {
-        mainViewModel.getCoins.observeForever {
-            coinList = it
-        }
-    }
-    val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(Unit) {
-        mainViewModel.getAllCoin0()
-    }
 
-    LaunchedEffect(!mainViewModel.isLoadingFromDb) {
-        isLoadingFromDb = false
-    }
-    LaunchedEffect(!mainViewModel.isLoading) {
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    mainViewModel.result.observe(lifecycleOwner) {
+        coinList = it
         isLoading = false
     }
-
 
     Surface(color = Color.Black) {
         if (isLoading) {

@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.root14.cryptocurrencytracker.database.entity.Coin
+import com.root14.cryptocurrencytracker.network.models.response.AllCoins
 import com.root14.cryptocurrencytracker.network.models.response.CoinById
 
 /**
@@ -33,6 +34,5 @@ interface CoinDao {
 
     @Query("SELECT EXISTS (SELECT 1 FROM coins LIMIT 1)")
     fun hasAnyCoin(): Boolean
-
 
 }
