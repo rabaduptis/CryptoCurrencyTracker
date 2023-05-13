@@ -1,15 +1,14 @@
 package com.root14.cryptocurrencytracker.ui.composable
 
+import android.content.SharedPreferences
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.widget.ScrollView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -34,10 +33,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.root14.cryptocurrencytracker.database.entity.Coin
+import com.root14.cryptocurrencytracker.data.entity.Coin
 import com.root14.cryptocurrencytracker.network.Status
 import com.root14.cryptocurrencytracker.ui.theme.DarkBlack
 import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
@@ -47,10 +45,11 @@ import kotlinx.coroutines.delay
  * Created by ilkay on 12,May, 2023
  */
 
-@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun CoinDetailComposable(
-    mainViewModel: MainViewModel = hiltViewModel(), coinId: String = "btc-bitcoin"
+    mainViewModel: MainViewModel = hiltViewModel(),
+    coinId: String = "btc-bitcoin",
+    sharedPreferences: SharedPreferences
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -60,9 +59,23 @@ fun CoinDetailComposable(
     var isLoading0 by remember { mutableStateOf(true) }
     var isLoading1 by remember { mutableStateOf(true) }
     val imageState = remember { mutableStateOf<Drawable?>(null) }
+    val backGroundWorkerPrice = remember { mutableStateOf<Double>(0.0) }
+
+    LaunchedEffect(Unit) {
+        mainViewModel.backGroundWorker.observe(lifecycleOwner) {
+            backGroundWorkerPrice.value = it
+            if (!coin.price.equals(it.toString())) {
+                coin.price = it.toString()
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         mainViewModel.getCoinById(coinId).observe(lifecycleOwner) {
+
+            sharedPreferences.edit().putString("backGroundWorker", coinId)
+                .apply()//for background work
+
             when (it.status) {
                 Status.SUCCESS -> {
                     coin.id = it.data?.id
@@ -150,9 +163,11 @@ fun CoinDetailComposable(
         }
     } else {
 
-        Column(modifier = Modifier
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
             Text(
                 text = "${coin.name} (${coin.hashAlgorithm})",
                 style = MaterialTheme.typography.h4,

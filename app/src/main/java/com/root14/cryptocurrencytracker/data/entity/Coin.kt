@@ -1,9 +1,8 @@
-package com.root14.cryptocurrencytracker.database.entity
+package com.root14.cryptocurrencytracker.data.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.root14.cryptocurrencytracker.network.models.response.CoinById
 
 /**
  * Created by ilkay on 11,May, 2023

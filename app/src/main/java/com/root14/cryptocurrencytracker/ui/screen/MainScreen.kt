@@ -1,6 +1,7 @@
 package com.root14.cryptocurrencytracker.ui.screen
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -48,7 +49,10 @@ import kotlinx.coroutines.withContext
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun MainScreen(mainViewModel: MainViewModel = hiltViewModel()) {
+fun MainScreen(
+    mainViewModel: MainViewModel = hiltViewModel(),
+    sharedPreferences: SharedPreferences
+) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -80,13 +84,13 @@ fun MainScreen(mainViewModel: MainViewModel = hiltViewModel()) {
         }
     ) {
         Surface(color = DarkBlack, modifier = Modifier.fillMaxSize()) {
-            MainScreenContent(navController = navController)
+            MainScreenContent(navController = navController, sharedPreferences = sharedPreferences)
         }
     }
 }
 
 @Composable
-fun MainScreenContent(navController: NavHostController) {
+fun MainScreenContent(navController: NavHostController, sharedPreferences: SharedPreferences) {
     NavHost(
         navController = navController,
         startDestination = "login_destination"
@@ -111,7 +115,7 @@ fun MainScreenContent(navController: NavHostController) {
         ) { backStackEntry ->
             val coinId = backStackEntry.arguments?.getString("coinId")
             coinId?.let {
-                CoinDetailComposable(coinId = it)
+                CoinDetailComposable(coinId = it, sharedPreferences = sharedPreferences)
             }
         }
     }

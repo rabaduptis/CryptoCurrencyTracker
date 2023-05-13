@@ -1,12 +1,10 @@
-package com.root14.cryptocurrencytracker.database.dao
+package com.root14.cryptocurrencytracker.data.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.root14.cryptocurrencytracker.database.entity.Coin
-import com.root14.cryptocurrencytracker.network.models.response.AllCoins
-import com.root14.cryptocurrencytracker.network.models.response.CoinById
+import com.root14.cryptocurrencytracker.data.entity.Coin
 
 /**
  * Created by ilkay on 11,May, 2023

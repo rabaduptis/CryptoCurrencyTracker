@@ -13,8 +13,8 @@ import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
-import com.root14.cryptocurrencytracker.database.entity.Coin
-import com.root14.cryptocurrencytracker.database.repo.DbRepo
+import com.root14.cryptocurrencytracker.data.entity.Coin
+import com.root14.cryptocurrencytracker.data.repo.DbRepo
 import com.root14.cryptocurrencytracker.network.Resource
 import com.root14.cryptocurrencytracker.network.Status
 import com.root14.cryptocurrencytracker.network.models.response.AllCoins
@@ -239,6 +239,27 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    private val _backGroundWorker = MutableLiveData<Double>()
+    var backGroundWorker: LiveData<Double> = _backGroundWorker
+    suspend fun backGroundWork() {
+        val backGroundWorker = sharedPreferences.getString("backGroundWorker", "")
+        getTickerById(backGroundWorker!!).observeForever {
+            when (it.status) {
+                Status.LOADING -> {
+                    println("fetch selected coin on background")
+                }
+
+                Status.ERROR -> {
+                    "cannot fetch coin on background ${it.message}"
+                }
+
+                Status.SUCCESS -> {
+                    _backGroundWorker.postValue(it.data?.quotes?.USD?.price)
+                }
+            }
+        }
+    }
+
     init {
         viewModelScope.launch {
             getAllCoins()
@@ -246,5 +267,10 @@ class MainViewModel @Inject constructor(
                 dbRepo.getFavoriteCoins()
             }
         }
+    }
+
+    object MyViewModelSingleton {
+        private lateinit var instance: MainViewModel
+
     }
 }

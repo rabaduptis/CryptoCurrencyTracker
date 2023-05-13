@@ -1,8 +1,11 @@
 package com.root14.cryptocurrencytracker.di
 
+import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
+import androidx.work.WorkerParameters
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.google.firebase.auth.FirebaseAuth
@@ -21,9 +24,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 import com.root14.cryptocurrencytracker.BuildConfig
-import com.root14.cryptocurrencytracker.database.AppDatabase
+import com.root14.cryptocurrencytracker.data.AppDatabase
 import com.root14.cryptocurrencytracker.network.repo.AuthRepository
 import com.root14.cryptocurrencytracker.network.repo.AuthRepositoryImpl
+import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 
 

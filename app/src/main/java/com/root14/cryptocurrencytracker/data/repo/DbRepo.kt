@@ -1,7 +1,7 @@
-package com.root14.cryptocurrencytracker.database.repo
+package com.root14.cryptocurrencytracker.data.repo
 
-import com.root14.cryptocurrencytracker.database.dao.CoinDao
-import com.root14.cryptocurrencytracker.database.entity.Coin
+import com.root14.cryptocurrencytracker.data.dao.CoinDao
+import com.root14.cryptocurrencytracker.data.entity.Coin
 import javax.inject.Inject
 
 /**

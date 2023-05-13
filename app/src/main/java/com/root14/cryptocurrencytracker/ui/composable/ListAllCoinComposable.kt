@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import com.root14.cryptocurrencytracker.database.entity.Coin
+import com.root14.cryptocurrencytracker.data.entity.Coin
 import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 
