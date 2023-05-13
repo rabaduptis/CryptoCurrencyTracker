@@ -36,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.root14.cryptocurrencytracker.database.entity.Coin
 import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
@@ -47,9 +48,11 @@ import kotlinx.coroutines.withContext
  * Created by ilkay on 12,May, 2023
  */
 
-@Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun FavoritesComposable(mainViewModel: MainViewModel = hiltViewModel()) {
+fun FavoritesComposable(
+    mainViewModel: MainViewModel = hiltViewModel(),
+    navController: NavController
+) {
     var coinList by remember {
         mutableStateOf(emptyList<Coin>())
     }

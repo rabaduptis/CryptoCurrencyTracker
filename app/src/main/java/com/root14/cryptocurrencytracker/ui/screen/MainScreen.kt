@@ -1,27 +1,33 @@
 package com.root14.cryptocurrencytracker.ui.screen
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.root14.cryptocurrencytracker.ui.composable.CoinDetailComposable
 import com.root14.cryptocurrencytracker.ui.composable.FavoritesComposable
 import com.root14.cryptocurrencytracker.ui.composable.ListAllCoinComposable
 import com.root14.cryptocurrencytracker.ui.composable.LoginComposable
 import com.root14.cryptocurrencytracker.ui.composable.SignInComposable
+import com.root14.cryptocurrencytracker.ui.theme.DarkBlack
 import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -64,7 +70,9 @@ fun MainScreen(mainViewModel: MainViewModel = hiltViewModel()) {
             }
         }
     ) {
-        MainScreenContent(navController = navController)
+        Surface(color = DarkBlack, modifier = Modifier.fillMaxSize()) {
+            MainScreenContent(navController = navController)
+        }
     }
 }
 
@@ -75,20 +83,29 @@ fun MainScreenContent(navController: NavHostController) {
         startDestination = "listAllCoin_destination"
     ) {
         composable("listAllCoin_destination") {
-            ListAllCoinComposable()
+            ListAllCoinComposable(navController = navController)
         }
         composable("favorites_destination") {
-            FavoritesComposable()
+            FavoritesComposable(navController = navController)
         }
-        composable("coinDetail_destination") {
-            CoinDetailComposable()
-        }
-        composable("login_destination") {
+
+        composable(route = "login_destination") {
             LoginComposable()
         }
         composable("signIn_destination") {
             SignInComposable()
         }
+
+        composable(
+            "coinDetail/{coinId}",
+            arguments = listOf(navArgument("coinId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val coinId = backStackEntry.arguments?.getString("coinId")
+            coinId?.let {
+                CoinDetailComposable(coinId = it)
+            }
+        }
+
 
     }
 }
