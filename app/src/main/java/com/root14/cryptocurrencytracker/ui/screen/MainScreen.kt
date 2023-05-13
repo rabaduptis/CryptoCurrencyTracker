@@ -12,8 +12,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -45,6 +53,7 @@ fun MainScreen(mainViewModel: MainViewModel = hiltViewModel()) {
 
     Scaffold(
         bottomBar = {
+
             BottomNavigation {
                 BottomNavigationItem(
                     icon = { Icon(Icons.Filled.Build, contentDescription = "All coins") },
@@ -80,7 +89,7 @@ fun MainScreen(mainViewModel: MainViewModel = hiltViewModel()) {
 fun MainScreenContent(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = "listAllCoin_destination"
+        startDestination = "login_destination"
     ) {
         composable("listAllCoin_destination") {
             ListAllCoinComposable(navController = navController)
@@ -90,10 +99,10 @@ fun MainScreenContent(navController: NavHostController) {
         }
 
         composable(route = "login_destination") {
-            LoginComposable()
+            LoginComposable(navController = navController)
         }
-        composable("signIn_destination") {
-            SignInComposable()
+        composable("signUp_destination") {
+            SignInComposable(navController = navController)
         }
 
         composable(
@@ -105,7 +114,5 @@ fun MainScreenContent(navController: NavHostController) {
                 CoinDetailComposable(coinId = it)
             }
         }
-
-
     }
 }
