@@ -13,6 +13,10 @@ import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.root14.cryptocurrencytracker.data.entity.Coin
 import com.root14.cryptocurrencytracker.data.repo.DbRepo
 import com.root14.cryptocurrencytracker.network.Resource
@@ -42,7 +46,8 @@ class MainViewModel @Inject constructor(
     private val dbRepo: DbRepo,
     private val glide: RequestManager,
     private val sharedPreferences: SharedPreferences,
-    private val repository: AuthRepository
+    private val repository: AuthRepository,
+    private val firebaseDatabase: FirebaseDatabase
 ) : ViewModel() {
 
     val _signInState = Channel<SignInState>()
@@ -258,6 +263,42 @@ class MainViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+
+    fun addFirebaseFavorite(coinId: String, fav: Boolean) {
+        val databaseRef = firebaseDatabase.getReference("favoriteCoins")
+
+        val _coin = Coin(id = coinId, favorite = fav)
+
+        databaseRef.child(coinId).setValue(_coin)
+    }
+
+
+    private val _firebaseFavCoins = MutableLiveData<MutableList<Coin>>()
+    val firebaseFavCoins: LiveData<MutableList<Coin>> = _firebaseFavCoins
+    fun getFirebaseCoins() {
+        val databaseRef = firebaseDatabase.getReference("favoriteCoins")
+        println("error happened -1")
+        databaseRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                println("error happened 0")
+                val coins = mutableListOf<Coin>()
+                for (coinSnapshot in dataSnapshot.children) {
+                    val coin = coinSnapshot.getValue(Coin::class.java)
+                    coin?.let {
+                        coins.add(it)
+                    }
+                }
+                _firebaseFavCoins.postValue(coins)
+                println("error happened 1")
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // handle error
+                println("error happened ${error.message}")
+            }
+        })
     }
 
     init {

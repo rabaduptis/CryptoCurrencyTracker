@@ -124,6 +124,7 @@ fun ListAllCoinComposable(
                                     isAddingFavorite = true
                                     mainViewModel.viewModelScope.launch {
                                         mainViewModel.toggleCoinFavorite(item.id!!)
+                                        mainViewModel.addFirebaseFavorite(item.id!!, true)
                                     }
                                     isFavorite = !isFavorite
                                     println("toggle ettim ${item.id!!}")

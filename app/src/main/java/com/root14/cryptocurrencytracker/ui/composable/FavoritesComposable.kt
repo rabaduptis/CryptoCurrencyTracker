@@ -61,6 +61,7 @@ fun FavoritesComposable(
         mainViewModel.viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 mainViewModel.getFavoriteCoins()
+                mainViewModel.getFirebaseCoins()
             }
         }
     }
@@ -70,6 +71,11 @@ fun FavoritesComposable(
         coinList = it
         isLoadingFav = mainViewModel.isLoadingFavCoins
         println("fav coins are $coinList")
+    }
+
+    mainViewModel.firebaseFavCoins.observe(lifecycleOwner) {
+        coinList = it
+        println("favorite coins have been retrieved from firebase. $it")
     }
 
     Surface(color = Color.Black) {
