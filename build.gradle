@@ -7,6 +7,7 @@ buildscript {
         retrofit = '2.9.0'
         okhttp = '4.10.0'
         moshi = '1.13.0'
+        hilt_worker_version = '1.0.0'
     }
     repositories {
         mavenCentral()
