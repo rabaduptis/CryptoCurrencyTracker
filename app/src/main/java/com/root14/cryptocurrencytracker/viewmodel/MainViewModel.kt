@@ -2,6 +2,14 @@ package com.root14.cryptocurrencytracker.viewmodel
 
 import android.graphics.drawable.Drawable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -36,6 +44,11 @@ class MainViewModel @Inject constructor(
     private val loginStatus = MutableLiveData<Boolean>()
     private val signInStatus = MutableLiveData<Boolean>()
 
+    var isLoadingFromDb by mutableStateOf(true)
+    var isLoadingFromAPI by mutableStateOf(true)
+    var isLoading by mutableStateOf(true)
+    var isLoadingFav by mutableStateOf(true)
+
     suspend fun login() {
     }
 
@@ -48,14 +61,20 @@ class MainViewModel @Inject constructor(
     val getAllCoins: LiveData<Resource<List<AllCoins>>>
         get() = _getAllCoins
 
+    /**
+     * coinf from API
+     */
     private fun getAllCoin() = viewModelScope.launch {
         _getAllCoins.postValue(Resource.loading(null))
+        isLoadingFromAPI = true
 
         mainRepository.listAllCoins().let {
             if (it.isSuccessful) {
                 _getAllCoins.postValue(Resource.success(it.body()))
+                isLoadingFromAPI = false
             } else {
                 _getAllCoins.postValue(Resource.error(it.errorBody().toString(), null))
+                isLoadingFromAPI = false
             }
         }
     }
@@ -98,7 +117,20 @@ class MainViewModel @Inject constructor(
 
     /*-----------------------*/
     suspend fun getFavoriteCoins(): List<Coin> = withContext(Dispatchers.IO) {
+        isLoadingFav = false
         dbRepo.getFavoriteCoins()
+    }
+
+    /**
+     * @return coin list from db
+     */
+    var getCoins = MutableLiveData<List<Coin>>()
+
+    suspend fun getCoins() {
+        withContext(Dispatchers.IO) {
+            getCoins.postValue(dbRepo.getCoins())
+            isLoadingFromDb = false
+        }
     }
 
     /*-----------------------*/
@@ -115,39 +147,85 @@ class MainViewModel @Inject constructor(
         })
     }
 
-    /*-----------------------*/
 
-    init {
-        //eğer dbde değer yoksa getAllCoin yap bitene kadar ekranda loading göster
-        getAllCoin()
-        //getAllTicker()
-        getAllCoins.observeForever {
-            it.data?.forEachIndexed { index, allCoins ->
+    fun getAllCoin0() = viewModelScope.launch {
+        withContext(Dispatchers.IO) {
+            if (!dbRepo.hasAnyCoin()) {
+                _getAllCoins.postValue(Resource.loading(null))
+                isLoadingFromAPI = true
 
-                when (it.status) {
-                    Status.SUCCESS -> {
-                        println("status sucess ${it.status}")
+                mainRepository.listAllCoins().let {
+                    if (it.isSuccessful) {
+                        _getAllCoins.postValue(Resource.success(it.body()))
+                        isLoadingFromAPI = false
 
-                        viewModelScope.launch {
-                            dbRepo.insertCoin(
-                                Coin(
-                                    id = allCoins.id,
-                                    name = allCoins.name,
-                                    symbol = allCoins.symbol
+                        // insert each coin to database
+                        it.body()?.forEach { coin ->
+                            viewModelScope.launch {
+                                dbRepo.insertCoin(
+                                    Coin(
+                                        id = coin.id,
+                                        name = coin.name,
+                                        symbol = coin.symbol
+                                    )
                                 )
-                            )
+                            }
                         }
+                    } else {
+                        _getAllCoins.postValue(Resource.error(it.errorBody().toString(), null))
+                        isLoading = false
+                    }
+                }
+            }
+            getCoins()
+            isLoading = false
+        }
+
+        fun initList(lifecycleOwner: LifecycleOwner) {
+            viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    if (dbRepo.hasAnyCoin()) {
+                        getCoins()
+                        //isLoadingFromAPI = false
+                    } else {
+                        getAllCoin()
+                        //isLoadingFromDb = false
                     }
 
-                    Status.LOADING -> {
-                        "status load ${it.status}"
-                    }
+                    getAllCoins.observe(lifecycleOwner) {
+                        it.data?.forEachIndexed { index, allCoins ->
+                            when (it.status) {
+                                Status.SUCCESS -> {
+                                    println("status sucess ${it.status}")
+                                    viewModelScope.launch {
+                                        dbRepo.insertCoin(
+                                            Coin(
+                                                id = allCoins.id,
+                                                name = allCoins.name,
+                                                symbol = allCoins.symbol
+                                            )
+                                        )
+                                    }
+                                    isLoading = false
+                                }
 
-                    Status.ERROR -> {
-                        "status error ${it.status}"
+                                Status.LOADING -> {
+                                    "status load ${it.status}"
+                                    isLoading = true
+                                }
+
+                                Status.ERROR -> {
+                                    "status error ${it.status}"
+                                    isLoading = false
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
+
+        /*-----------------------*/
+
     }
 }

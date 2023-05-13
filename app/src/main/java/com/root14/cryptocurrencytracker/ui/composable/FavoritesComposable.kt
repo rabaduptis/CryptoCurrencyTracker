@@ -43,19 +43,17 @@ import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun FavoritesComposable(mainViewModel: MainViewModel = hiltViewModel()) {
-    var isLoading by remember { mutableStateOf(true) }
     var coinList by remember {
         mutableStateOf(emptyList<Coin>())
     }
     LaunchedEffect(Unit) {
         coinList = mainViewModel.getFavoriteCoins()
-        isLoading = false
     }
 
 
     Surface(color = Color.Black) {
         //loading screen
-        if (isLoading) {
+        if (mainViewModel.isLoadingFav) {
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally

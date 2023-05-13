@@ -31,4 +31,8 @@ interface CoinDao {
     @Query("SELECT * FROM coins WHERE favorite = 1")
     fun getFavoriteCoins(): List<Coin>
 
+    @Query("SELECT EXISTS (SELECT 1 FROM coins LIMIT 1)")
+    fun hasAnyCoin(): Boolean
+
+
 }

@@ -10,6 +10,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,6 +22,8 @@ import com.root14.cryptocurrencytracker.ui.composable.FavoritesComposable
 import com.root14.cryptocurrencytracker.ui.composable.ListAllCoinComposable
 import com.root14.cryptocurrencytracker.ui.composable.LoginComposable
 import com.root14.cryptocurrencytracker.ui.composable.SignInComposable
+import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
+import kotlinx.coroutines.launch
 
 /**
  * Created by ilkay on 12,May, 2023
@@ -27,7 +32,7 @@ import com.root14.cryptocurrencytracker.ui.composable.SignInComposable
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun MainScreen() {
+fun MainScreen(mainViewModel: MainViewModel = hiltViewModel()) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -48,6 +53,9 @@ fun MainScreen() {
                     label = { Text("Favorites") },
                     selected = navController.currentDestination?.route == "favorites_destination",
                     onClick = {
+                        mainViewModel.viewModelScope.launch {
+                            println("get favs ${mainViewModel.getFavoriteCoins()}")
+                        }
                         navController.navigate("favorites_destination") {
                             launchSingleTop = true
                         }

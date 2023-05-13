@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.root14.cryptocurrencytracker.database.entity.Coin
 import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Created by ilkay on 11,May, 2023
@@ -45,12 +48,35 @@ import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
 fun ListAllCoinComposable(
     mainViewModel: MainViewModel = hiltViewModel(),
 ) {
-    var isLoading by remember { mutableStateOf(true) }
+
+    var isLoadingFromDb by remember {
+        mutableStateOf(true)
+    }
+    var isLoadingFromAPI by remember {
+        mutableStateOf(true)
+    }
+
+    var isLoading by remember {
+        mutableStateOf(true)
+    }
+
     var coinList by remember {
         mutableStateOf(emptyList<Coin>())
     }
     LaunchedEffect(Unit) {
-        coinList = mainViewModel.dbRepo.getCoins()
+        mainViewModel.getCoins.observeForever {
+            coinList = it
+        }
+    }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(Unit) {
+        mainViewModel.getAllCoin0()
+    }
+
+    LaunchedEffect(!mainViewModel.isLoadingFromDb) {
+        isLoadingFromDb = false
+    }
+    LaunchedEffect(!mainViewModel.isLoading) {
         isLoading = false
     }
 
