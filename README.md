@@ -14,8 +14,8 @@
 - Various Android jetpack libraries (such as NavigationController)
 
 #### Features that are discontinued or need to be developed
-- Background worker, dependency injection issues
-- Favorite coin system should be improved
+- Background worker HiltWorker,AssistedInject issues 
+- Favorite coin system must be improved
  
  
  ------------
