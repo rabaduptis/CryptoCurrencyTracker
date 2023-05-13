@@ -29,6 +29,9 @@ import com.root14.cryptocurrencytracker.network.models.response.TickerById
 import com.root14.cryptocurrencytracker.network.repo.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -46,6 +49,9 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
     private val loginStatus = MutableLiveData<Boolean>()
     private val signInStatus = MutableLiveData<Boolean>()
+
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing = _isRefreshing.asStateFlow()
 
     var isLoadingFav by mutableStateOf(true)
 
@@ -130,16 +136,21 @@ class MainViewModel @Inject constructor(
     suspend fun getFavorite(coinId: String) = dbRepo.getFavorite(coinId)
 
     /*-----------------------*/
-    suspend fun getFavoriteCoins(): List<Coin> = withContext(Dispatchers.IO) {
-        isLoadingFav = false
-        dbRepo.getFavoriteCoins()
+    var resultFavCoins = MutableLiveData<List<Coin>>()
+    var isLoadingFavCoins by mutableStateOf(true)
+    suspend fun getFavoriteCoins() {
+        _isRefreshing.update { true }
+        resultFavCoins.postValue(dbRepo.getFavoriteCoins())
+        isLoadingFavCoins = false
+        _isRefreshing.update { false }
     }
+    /*-----------------------*/
+
 
     /**
      * @return coin list from db
      */
     var getCoins = MutableLiveData<List<Coin>>()
-
     suspend fun getCoins() {
         withContext(Dispatchers.IO) {
             getCoins.postValue(dbRepo.getCoins())
@@ -162,14 +173,11 @@ class MainViewModel @Inject constructor(
     }
     /*-----------------------*/
 
-
-    //Temiz
     var isLoading by mutableStateOf(true)
     var loadingProgress by mutableStateOf(0f)
     var result = MutableLiveData<List<Coin>>()
 
     suspend fun getAllCoins() {
-
         val coinsFromDb = dbRepo.getCoins()
         if (coinsFromDb.isEmpty()) {
             //get from api
@@ -215,6 +223,11 @@ class MainViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             getAllCoins()
+            withContext(Dispatchers.IO) {
+                dbRepo.getFavoriteCoins()
+            }
         }
+
+
     }
 }

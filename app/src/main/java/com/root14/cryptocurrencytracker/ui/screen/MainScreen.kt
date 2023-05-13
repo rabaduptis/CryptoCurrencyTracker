@@ -23,7 +23,9 @@ import com.root14.cryptocurrencytracker.ui.composable.ListAllCoinComposable
 import com.root14.cryptocurrencytracker.ui.composable.LoginComposable
 import com.root14.cryptocurrencytracker.ui.composable.SignInComposable
 import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Created by ilkay on 12,May, 2023
@@ -49,13 +51,11 @@ fun MainScreen(mainViewModel: MainViewModel = hiltViewModel()) {
                     }
                 )
                 BottomNavigationItem(
+
                     icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorites") },
                     label = { Text("Favorites") },
                     selected = navController.currentDestination?.route == "favorites_destination",
                     onClick = {
-                        mainViewModel.viewModelScope.launch {
-                            println("get favs ${mainViewModel.getFavoriteCoins()}")
-                        }
                         navController.navigate("favorites_destination") {
                             launchSingleTop = true
                         }

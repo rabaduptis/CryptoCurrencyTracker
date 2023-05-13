@@ -99,6 +99,11 @@ dependencies {
     implementation "androidx.compose.material3:material3:1.1.0"
     implementation "androidx.compose.material3:material3-window-size-class:1.1.0"
 
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
+    //accompanist
+    implementation "com.google.accompanist:accompanist-swiperefresh:0.25.1"
+
     implementation 'androidx.activity:activity-ktx:1.7.1'
 
     //navigation controller

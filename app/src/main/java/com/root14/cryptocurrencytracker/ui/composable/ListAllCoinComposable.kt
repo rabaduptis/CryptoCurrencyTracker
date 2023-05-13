@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -36,10 +37,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.root14.cryptocurrencytracker.database.entity.Coin
 import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
@@ -94,10 +97,12 @@ fun ListAllCoinComposable(
                 }
             }
         } else {
+            val favoriteStatuses = remember { MutableList(coinList.size) { false } }
             LazyColumn() {
-                items(coinList) { item ->
+                itemsIndexed(coinList) { index, item ->
 
-                    var isFavorite by remember { mutableStateOf(false) }
+                    var isFavorite = favoriteStatuses[index]
+                    var isAddingFavorite by remember { mutableStateOf(false) }
                     mainViewModel.setInitialized()
 
                     LaunchedEffect(isFavorite) {
@@ -118,7 +123,15 @@ fun ListAllCoinComposable(
 
                         IconButton(
                             onClick = {
-                                isFavorite = !isFavorite
+                                if (!isAddingFavorite) {
+                                    isAddingFavorite = true
+                                    mainViewModel.viewModelScope.launch {
+                                        mainViewModel.toggleCoinFavorite(item.id!!)
+                                    }
+                                    isFavorite = !isFavorite
+                                    println("toggle ettim ${item.id!!}")
+                                    isAddingFavorite = false
+                                }
                             },
                         ) {
 

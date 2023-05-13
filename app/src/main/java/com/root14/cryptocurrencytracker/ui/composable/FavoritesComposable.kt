@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -29,12 +30,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.root14.cryptocurrencytracker.database.entity.Coin
 import com.root14.cryptocurrencytracker.viewmodel.MainViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Created by ilkay on 12,May, 2023
@@ -46,14 +53,28 @@ fun FavoritesComposable(mainViewModel: MainViewModel = hiltViewModel()) {
     var coinList by remember {
         mutableStateOf(emptyList<Coin>())
     }
-    LaunchedEffect(Unit) {
-        coinList = mainViewModel.getFavoriteCoins()
+    var isLoadingFav by remember {
+        mutableStateOf(false)
     }
 
+    LaunchedEffect(key1 = Unit) {
+        mainViewModel.viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                mainViewModel.getFavoriteCoins()
+            }
+        }
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    mainViewModel.resultFavCoins.observe(lifecycleOwner) {
+        coinList = it
+        isLoadingFav = mainViewModel.isLoadingFavCoins
+        println("fav coins are $coinList")
+    }
 
     Surface(color = Color.Black) {
         //loading screen
-        if (mainViewModel.isLoadingFav) {
+        if (isLoadingFav) {
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -80,10 +101,12 @@ fun FavoritesComposable(mainViewModel: MainViewModel = hiltViewModel()) {
                     )
                 }
             } else {
-                LazyColumn() {
-                    items(coinList) { item ->
+                val favoriteStatuses = remember { MutableList(coinList.size) { false } }
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    itemsIndexed(coinList) { index, item ->
+                        var isFavorite = favoriteStatuses[index]
+                        var isAddingFavorite by remember { mutableStateOf(false) }
 
-                        var isFavorite by remember { mutableStateOf(false) }
 
                         LaunchedEffect(isFavorite) {
                             mainViewModel.toggleCoinFavorite(item.id!!)
@@ -109,7 +132,7 @@ fun FavoritesComposable(mainViewModel: MainViewModel = hiltViewModel()) {
 
                                 Icon(
                                     //turn to Icons.Filled.Favorite when added fav
-                                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                    imageVector = if (item.favorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                                     contentDescription = "Add favorite $item",
                                     tint = Color.Gray,
                                     modifier = Modifier.size(24.dp),
