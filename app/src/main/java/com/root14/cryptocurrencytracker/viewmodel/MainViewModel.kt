@@ -4,18 +4,12 @@ import android.content.SharedPreferences
 import android.graphics.drawable.Drawable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -26,12 +20,14 @@ import com.root14.cryptocurrencytracker.network.Status
 import com.root14.cryptocurrencytracker.network.models.response.AllCoins
 import com.root14.cryptocurrencytracker.network.models.response.CoinById
 import com.root14.cryptocurrencytracker.network.models.response.TickerById
+import com.root14.cryptocurrencytracker.network.repo.AuthRepository
 import com.root14.cryptocurrencytracker.network.repo.MainRepository
+import com.root14.cryptocurrencytracker.network.state.SignInState
+import com.root14.cryptocurrencytracker.network.state.SignUpState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -43,23 +39,51 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val mainRepository: MainRepository,
-    val dbRepo: DbRepo,
+    private val dbRepo: DbRepo,
     private val glide: RequestManager,
-    private val sharedPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences,
+    private val repository: AuthRepository
 ) : ViewModel() {
-    private val loginStatus = MutableLiveData<Boolean>()
-    private val signInStatus = MutableLiveData<Boolean>()
 
-    private val _isRefreshing = MutableStateFlow(false)
-    val isRefreshing = _isRefreshing.asStateFlow()
+    val _signInState = Channel<SignInState>()
+    val signInState = _signInState.receiveAsFlow()
+    suspend fun login(email: String, password: String) = viewModelScope.launch {
+        repository.loginUser(email, password).collect {
 
-    var isLoadingFav by mutableStateOf(true)
+            when (it.status) {
+                Status.LOADING -> {
+                    _signInState.send(SignInState(isLoading = true))
+                }
 
-    suspend fun login() {
+                Status.ERROR -> {
+                    _signInState.send(SignInState(isError = "Sign In Error"))
+                }
+
+                Status.SUCCESS -> {
+                    _signInState.send(SignInState(isSuccess = "Sign In Success "))
+                }
+            }
+        }
     }
 
-    fun signIn() {
+    val _signUpState = Channel<SignUpState>()
+    val signUpState = _signUpState.receiveAsFlow()
+    suspend fun register(email: String, password: String) {
+        repository.registerUser(email, password).collect {
+            when (it.status) {
+                Status.LOADING -> {
+                    _signUpState.send(SignUpState(isLoading = true))
+                }
 
+                Status.ERROR -> {
+                    _signUpState.send(SignUpState(isError = "Sign In Error"))
+                }
+
+                Status.SUCCESS -> {
+                    _signUpState.send(SignUpState(isSuccess = "Sign In Success "))
+                }
+            }
+        }
     }
 
     /*-----------------------*/
@@ -139,12 +163,9 @@ class MainViewModel @Inject constructor(
     var resultFavCoins = MutableLiveData<List<Coin>>()
     var isLoadingFavCoins by mutableStateOf(true)
     suspend fun getFavoriteCoins() {
-        _isRefreshing.update { true }
         resultFavCoins.postValue(dbRepo.getFavoriteCoins())
         isLoadingFavCoins = false
-        _isRefreshing.update { false }
-    }
-    /*-----------------------*/
+    }/*-----------------------*/
 
 
     /**
@@ -162,16 +183,14 @@ class MainViewModel @Inject constructor(
     fun loadImage(imageUrl: String, imageState: MutableState<Drawable?>) {
         glide.load(imageUrl).into(object : CustomTarget<Drawable?>() {
             override fun onResourceReady(
-                resource: Drawable,
-                transition: Transition<in Drawable?>?
+                resource: Drawable, transition: Transition<in Drawable?>?
             ) {
                 imageState.value = resource
             }
 
             override fun onLoadCleared(placeholder: Drawable?) {}
         })
-    }
-    /*-----------------------*/
+    }/*-----------------------*/
 
     var isLoading by mutableStateOf(true)
     var loadingProgress by mutableStateOf(0f)
@@ -227,7 +246,5 @@ class MainViewModel @Inject constructor(
                 dbRepo.getFavoriteCoins()
             }
         }
-
-
     }
 }

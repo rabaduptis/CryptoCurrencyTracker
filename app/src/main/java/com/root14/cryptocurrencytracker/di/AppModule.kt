@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.room.Room
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
+import com.google.firebase.auth.FirebaseAuth
 import com.root14.cryptocurrencytracker.network.Utility
 import com.root14.cryptocurrencytracker.network.api.ApiHelper
 import com.root14.cryptocurrencytracker.network.api.ApiHelperImpl
@@ -21,6 +22,8 @@ import javax.inject.Singleton
 
 import com.root14.cryptocurrencytracker.BuildConfig
 import com.root14.cryptocurrencytracker.database.AppDatabase
+import com.root14.cryptocurrencytracker.network.repo.AuthRepository
+import com.root14.cryptocurrencytracker.network.repo.AuthRepositoryImpl
 import dagger.hilt.android.qualifiers.ApplicationContext
 
 
@@ -82,6 +85,17 @@ object AppModule {
     @Singleton
     fun provideSharedPreferences(@ApplicationContext appContext: Context): SharedPreferences {
         return appContext.getSharedPreferences("MY_SHARED_PREFS", Context.MODE_PRIVATE)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseAuth() = FirebaseAuth.getInstance()
+
+
+    @Provides
+    @Singleton
+    fun provideRepositoryImpl(firebaseAuth: FirebaseAuth): AuthRepository {
+        return AuthRepositoryImpl(firebaseAuth)
     }
 }
 
