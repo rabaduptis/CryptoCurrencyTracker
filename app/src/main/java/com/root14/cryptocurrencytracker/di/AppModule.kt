@@ -1,6 +1,7 @@
 package com.root14.cryptocurrencytracker.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.room.Room
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
@@ -75,5 +76,12 @@ object AppModule {
     @Singleton
     fun provideGlideInstance(@ApplicationContext context: Context): RequestManager =
         Glide.with(context)
+
+
+    @Provides
+    @Singleton
+    fun provideSharedPreferences(@ApplicationContext appContext: Context): SharedPreferences {
+        return appContext.getSharedPreferences("MY_SHARED_PREFS", Context.MODE_PRIVATE)
+    }
 }
 

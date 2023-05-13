@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
@@ -60,7 +61,7 @@ fun ListAllCoinComposable(
     val lifecycleOwner = LocalLifecycleOwner.current
     mainViewModel.result.observe(lifecycleOwner) {
         coinList = it
-        isLoading = false
+        isLoading = mainViewModel.isLoading
     }
 
     Surface(color = Color.Black) {
@@ -77,12 +78,21 @@ fun ListAllCoinComposable(
                     color = Color.White,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
+                if (mainViewModel.checkFirstInit()) {
+                    Text(
+                        text = "Creating database, this may take some time.",
+                        color = Color.White,
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        fontSize = 12.sp
+                    )
+                }
             }
         } else {
             LazyColumn() {
                 items(coinList) { item ->
 
                     var isFavorite by remember { mutableStateOf(false) }
+                    mainViewModel.setInitialized()
 
                     LaunchedEffect(isFavorite) {
                         mainViewModel.toggleCoinFavorite(item.id!!)

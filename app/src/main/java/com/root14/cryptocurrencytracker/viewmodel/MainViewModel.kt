@@ -1,5 +1,6 @@
 package com.root14.cryptocurrencytracker.viewmodel
 
+import android.content.SharedPreferences
 import android.graphics.drawable.Drawable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -40,7 +41,8 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val mainRepository: MainRepository,
     val dbRepo: DbRepo,
-    private val glide: RequestManager
+    private val glide: RequestManager,
+    private val sharedPreferences: SharedPreferences
 ) : ViewModel() {
     private val loginStatus = MutableLiveData<Boolean>()
     private val signInStatus = MutableLiveData<Boolean>()
@@ -53,6 +55,20 @@ class MainViewModel @Inject constructor(
     fun signIn() {
 
     }
+
+    /*-----------------------*/
+
+    fun setInitialized(key: String = "init", value: Boolean = true) {
+        val editor = sharedPreferences.edit()
+        editor.putBoolean(key, value)
+        editor.apply()
+    }
+
+    /**
+     * @return true if first init
+     */
+    fun checkFirstInit(key: String = "init") = sharedPreferences.getBoolean(key, true)
+
     /*-----------------------*/
 
     private val _getAllCoins = MutableLiveData<Resource<List<AllCoins>>>()
