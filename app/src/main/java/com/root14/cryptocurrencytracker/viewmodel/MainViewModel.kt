@@ -165,6 +165,7 @@ class MainViewModel @Inject constructor(
 
     //Temiz
     var isLoading by mutableStateOf(true)
+    var loadingProgress by mutableStateOf(0f)
     var result = MutableLiveData<List<Coin>>()
 
     suspend fun getAllCoins() {
@@ -188,6 +189,7 @@ class MainViewModel @Inject constructor(
                                         index = index,
                                         element = Coin(id = allCoins.id, name = allCoins.name)
                                     )
+                                    loadingProgress = (((index + 1) * 100) / it.data.size).toFloat()
                                 }
                                 result.postValue(_result)
                                 isLoading = false

@@ -1,5 +1,6 @@
 package com.root14.cryptocurrencytracker.ui.composable
 
+import android.widget.ProgressBar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,11 +55,10 @@ fun ListAllCoinComposable(
     var isLoading by remember {
         mutableStateOf(true)
     }
+
     var coinList by remember {
         mutableStateOf(emptyList<Coin>())
     }
-
-
     val lifecycleOwner = LocalLifecycleOwner.current
     mainViewModel.result.observe(lifecycleOwner) {
         coinList = it
@@ -79,6 +80,11 @@ fun ListAllCoinComposable(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
                 if (mainViewModel.checkFirstInit()) {
+                    LinearProgressIndicator(
+                        progress = (mainViewModel.loadingProgress / 100F),
+                        trackColor = Color.White, modifier = Modifier.padding(top = 12.dp)
+                    )
+
                     Text(
                         text = "Creating database, this may take some time.",
                         color = Color.White,
